@@ -2,8 +2,6 @@
 #include "core/features2d/featureDetectorProvider.h"
 #include "core/features2d/descriptorExtractorProvider.h"
 #include "core/features2d/descriptorMatcherProvider.h"
-#include "core/features2d/detectExtractAndMatchProvider.h"
-#include "core/features2d/detectAndExtractProvider.h"
 #include "core/features2d/bufferReaderProvider.h"
 #include "core/features2d/vsfmIo.h"
 #include "core/buffers/bufferFactory.h"
@@ -76,7 +74,7 @@ void FeatureMatchingPipeline::add(FeatureMatchingPipelineStage *ps, bool run, bo
 
 void FeatureMatchingPipeline::printCaps()
 {
-    cout << "Current FeatureMatchingPipeline::caps are:" << std::endl;
+    std::cout << "Current FeatureMatchingPipeline::caps are:" << std::endl;
     FeatureDetectorProvider::getInstance().print("FeatureDetectorProvider");
     DescriptorExtractorProvider::getInstance().print("DescriptorExtractorProvider");
     DescriptorMatcherProvider::getInstance().print("DescriptorMatcherProvider");
@@ -1565,9 +1563,9 @@ DetectAndExtractStage::DetectAndExtractStage(DetectorType detectorType, Descript
     , keypointsColor(keypointsColor)
     , params(params)
 {
-    DetectAndExtract* detector = DetectAndExtractProvider::getInstance().getDetector(detectorType, descriptorType);
-    parallelable = detector ? detector->isParallelable() : false;
-    delete detector;
+//    DetectAndExtract* detector = DetectAndExtractProvider::getInstance().getDetector(detectorType, descriptorType);
+//    parallelable = detector ? detector->isParallelable() : false;
+//    delete detector;
 }
 
 class ParallelDetectorExtractor
@@ -1582,7 +1580,7 @@ class ParallelDetectorExtractor
 public:
     void operator() (const corecvs::BlockedRange<size_t>& r) const
     {
-        std::unique_ptr<DetectAndExtract> detector(DetectAndExtractProvider::getInstance().getDetector(detectorType, descriptorType, params));
+//        std::unique_ptr<DetectAndExtract> detector(DetectAndExtractProvider::getInstance().getDetector(detectorType, descriptorType, params));
         size_t N = pipeline->images.size();
         size_t id = r.begin();
 
@@ -1604,8 +1602,8 @@ public:
 			corecvs::RuntimeTypeBuffer img = reader->read(image.filename);
             img.downsample(downsampleFactor);
    
-            if (detector.get())
-                detector->detectAndExtract(img, image.keyPoints.keyPoints, image.descriptors.mat, maxFeatureCount, downsampleFactor == 1 ? image.remapCache : nullptr);
+//            if (detector.get())
+//                detector->detectAndExtract(img, image.keyPoints.keyPoints, image.descriptors.mat, maxFeatureCount, downsampleFactor == 1 ? image.remapCache : nullptr);
 
             kpt += image.keyPoints.keyPoints.size();
             image.descriptors.type = descriptorType;
@@ -1726,18 +1724,18 @@ DetectExtractAndMatchStage::DetectExtractAndMatchStage(DetectorType detectorType
 
 void DetectExtractAndMatchStage::run(FeatureMatchingPipeline *pipeline)
 {
-    std::unique_ptr<DetectExtractAndMatch> detector(DetectExtractAndMatchProvider::getInstance().getDetector(detectorType, descriptorType, matcherType, params));
+//    std::unique_ptr<DetectExtractAndMatch> detector(DetectExtractAndMatchProvider::getInstance().getDetector(detectorType, descriptorType, matcherType, params));
     std::stringstream ss1;
     pipeline->tic();
 
 	const size_t numImages = pipeline->images.size();
-	if (detector.get())
-		detector->detectExtractAndMatch(*pipeline, maxFeatureCount, (int)responsesPerPoint);
-	else
-	{
-		for (uint i = 0; i < numImages; i++)
-			pipeline->images[i].keyPoints.keyPoints.clear();
-	}
+//	if (detector.get())
+//		detector->detectExtractAndMatch(*pipeline, maxFeatureCount, (int)responsesPerPoint);
+//	else
+//	{
+//		for (uint i = 0; i < numImages; i++)
+//			pipeline->images[i].keyPoints.keyPoints.clear();
+//	}
 
 	for (uint i = 0; i < numImages; i++)
 		std::cerr << pipeline->images[i].filename << "\t\t\t " << pipeline->images[i].keyPoints.keyPoints.size() << " keypoints " << std::endl;

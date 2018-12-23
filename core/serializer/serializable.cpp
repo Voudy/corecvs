@@ -9,14 +9,8 @@
 #include "core/serializer/serializable.h"
 namespace corecvs {
 
-template<>
-int PropertyListSerializer::visit<int>(int &value, std::string name, const int defaultValue)
-{
-    return true;
-}
-
-template<>
-int PropertyListSerializer::visit<double>(double &value, std::string name, const double defaultValue)
+template<typename ValueType>
+int PropertyListSerializer::visit(ValueType &value, std::string name, const ValueType defaultValue)
 {
     return true;
 }

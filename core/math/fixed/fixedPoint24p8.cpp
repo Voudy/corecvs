@@ -15,8 +15,8 @@ FixedPoint24p8::FixedPoint24p8()
 {
 }
 
-FixedPoint24p8::~FixedPoint24p8()
-{
-}
+//FixedPoint24p8::~FixedPoint24p8()
+//{
+//}
 
 } /* namespace corecvs */

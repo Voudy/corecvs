@@ -277,7 +277,7 @@ void setStdTerminateHandler() {}
 
 static void stdTerminateHandler()
 {
-    printStackTrace();
+//    printStackTrace();
     exit(1);
 }
 

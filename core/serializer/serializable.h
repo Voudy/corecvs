@@ -10,6 +10,8 @@
 
 #include <string>
 #include <vector>
+#include <core/utils/propertyList.h>
+
 namespace corecvs {
 
 using std::string;
@@ -33,12 +35,9 @@ public:
 
 class PropertyListSerializer : public PropertyList
 {
-template<>
-    int visit<int>(int &value, string name, const int defaultValue);
 
-template<>
-    int visit<double>(double &value, string name, const double defaultValue);
-
+template<typename ValueType>
+    int visit(ValueType &value, string name, const ValueType defaultValue);
 
 };
 

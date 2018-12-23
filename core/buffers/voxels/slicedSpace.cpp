@@ -6,7 +6,7 @@
  * \author alexander
  */
 
-#include "SlicedSpace.h"
+#include "core/buffers/voxels/slicedSpace.h"
 namespace corecvs {
 
 SlicedSpace::SlicedSpace()

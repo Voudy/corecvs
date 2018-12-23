@@ -221,13 +221,13 @@ do {                  \
 
 #ifndef OPENCL_KERNEL_CODE
 
-#ifdef is__cplusplus
-extern "C" {
-#endif
-    void printStackTrace();
-#ifdef is__cplusplus
-} // extern "C"
-#endif
+//#ifdef is__cplusplus
+//extern "C" {
+//#endif
+//    void printStackTrace();
+//#ifdef is__cplusplus
+//} // extern "C"
+//#endif
 
 #endif // !OPENCL_KERNEL_CODE
 
