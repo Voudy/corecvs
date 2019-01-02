@@ -25,21 +25,23 @@ class DelaunayTriangulation {
 
     void GetTriangulation(std::vector<Triangle2dd>* triangles);
 
+    static bool PointInsideCircumcircle(const Vector2dd& point, const Triangle2dd& triangle);
+
     void BuildTriangulation();
 
  private:
     const double EPSILON = 1e-5;
-    const int OFFSET = 10;
+    const int OFFSET = 100;
     std::vector<Vector2dd> points_;
-    std::vector<Triangle2dd> triangles_;
+    std::vector<std::pair<Triangle2dd, bool>> triangles_;
+
+    void RemoveSamePoint();
 
     void AddPointToTriangulation(const Vector2dd& point);
 
-    Vector2dd GetCircumcircleCenter(const Triangle2dd& triangle);
+    static Vector2dd GetCircumcircleCenter(const Triangle2dd& triangle);
 
-    bool PointInsideCircumcircle(const Vector2dd& point, const Triangle2dd& triangle);
-
-    double Length(const Vector2dd& point1, const Vector2dd& point2);
+    static double Length(const Vector2dd& point1, const Vector2dd& point2);
 
     bool AlmostEqualSegments(const std::pair<Vector2dd, Vector2dd>& a,
                              const std::pair<Vector2dd, Vector2dd>& b);

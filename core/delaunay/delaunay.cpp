@@ -15,6 +15,10 @@
 
 corecvs::DelaunayTriangulation::DelaunayTriangulation(const vector<Vector2dd>& points) :
         points_(points) {
+    RemoveSamePoint();
+    if (points_.size() < 3) {
+        throw std::invalid_argument("need at least 3 points for triangulation");
+    }
     BuildTriangulation();
 }
 
@@ -26,7 +30,24 @@ void corecvs::DelaunayTriangulation::GetPoints(vector<Vector2dd>* points) {
 
 void corecvs::DelaunayTriangulation::GetTriangulation(vector<Triangle2dd>* triangles) {
     for (auto& tri : triangles_) {
-        triangles->emplace_back(tri);
+        triangles->emplace_back(tri.first);
+    }
+}
+
+void corecvs::DelaunayTriangulation::RemoveSamePoint() {
+    std::vector<Vector2dd> cur_points = std::move(points_);
+    points_.clear();
+    for (auto& point : cur_points) {
+        bool flag = true;
+        for (auto& contain_point : points_) {
+            if (contain_point == point) {
+                flag = false;
+                break;
+            }
+        }
+        if (flag) {
+            points_.emplace_back(point);
+        }
     }
 }
 
@@ -50,27 +71,42 @@ void corecvs::DelaunayTriangulation::BuildTriangulation() {
     auto p1 = Vector2dd(maxX + 1. * (maxY - minY) / tan(degToRad(60)), minY),
             p2 = Vector2dd(minX - 1. * (maxY - minY) / tan(degToRad(60)), minY),
             p3 = Vector2dd((minX + maxX) / 2, maxY + 1. * (minX + maxX) / 2 / tan(degToRad(30)));
-    triangles_.emplace_back(p1, p2, p3);
+    triangles_.emplace_back(Triangle2dd(p1, p2, p3), true);
     // iterate over all points and insert each into triangulation
     for (auto& point : points_) {
         AddPointToTriangulation(point);
     }
+    // remove triangles with point from supertriangle
+    std::vector<Vector2dd> vertex = {p1, p2, p3};
+    triangles_.erase(std::remove_if(triangles_.begin(), triangles_.end(),
+                                    [vertex](const std::pair<Triangle2dd, bool>& a) {
+                                        for (auto& point : vertex) {
+                                            if (point == a.first.p1() || point == a.first.p2() ||
+                                                point == a.first.p3()) {
+                                                return true;
+                                            }
+                                        }
+                                        return false;
+                                    }), triangles_.end());
 }
 
 void corecvs::DelaunayTriangulation::AddPointToTriangulation(const corecvs::Vector2dd& point) {
-    std::vector<Triangle2dd> cur_triangulation = std::move(triangles_);
-    triangles_.clear();
     std::vector<std::pair<std::pair<Vector2dd, Vector2dd>, bool>> polygon;
     // filter triangles by containing point in circumcircle
-    for (auto& tri : cur_triangulation) {
-        if (PointInsideCircumcircle(point, tri)) {
-            polygon.emplace_back(std::make_pair(tri.p1(), tri.p2()), true);
-            polygon.emplace_back(std::make_pair(tri.p2(), tri.p3()), true);
-            polygon.emplace_back(std::make_pair(tri.p3(), tri.p1()), true);
+    for (auto& tri : triangles_) {
+        if (PointInsideCircumcircle(point, tri.first)) {
+            polygon.emplace_back(std::make_pair(tri.first.p1(), tri.first.p2()), true);
+            polygon.emplace_back(std::make_pair(tri.first.p2(), tri.first.p3()), true);
+            polygon.emplace_back(std::make_pair(tri.first.p3(), tri.first.p1()), true);
+            tri.second = false;
         } else {
-            triangles_.emplace_back(tri);
+            tri.second = true;
         }
     }
+    triangles_.erase(remove_if(triangles_.begin(), triangles_.end(),
+                               [](const std::pair<Triangle2dd, bool>& a) {
+                                   return !a.second;
+                               }), triangles_.end());
     for (auto i = 0; i < polygon.size(); ++i) {
         for (auto j = i + 1; j < polygon.size(); ++j) {
             // check that this segments are equal
@@ -83,7 +119,7 @@ void corecvs::DelaunayTriangulation::AddPointToTriangulation(const corecvs::Vect
     // create new triangles
     for (auto& seg : polygon) {
         if (seg.second) {
-            triangles_.emplace_back(seg.first.first, seg.first.second, point);
+            triangles_.emplace_back(Triangle2dd(seg.first.first, seg.first.second, point), true);
         }
     }
 }
@@ -103,7 +139,9 @@ bool corecvs::DelaunayTriangulation::PointInsideCircumcircle(const corecvs::Vect
 
 double corecvs::DelaunayTriangulation::Length(const corecvs::Vector2dd& point1,
                                               const corecvs::Vector2dd& point2) {
-    return (point1 - point2).getLengthStable();
+    auto dx = point1.x() - point2.x(),
+            dy = point1.y() - point2.y();
+    return sqrt(dx * dx + dy * dy);
 }
 
 bool corecvs::DelaunayTriangulation::AlmostEqualSegments(
@@ -127,10 +165,10 @@ corecvs::Vector2dd corecvs::DelaunayTriangulation::GetCircumcircleCenter(
     Matrix22 A(
             2 * (x2 - x1), 2 * (y2 - y1),
             2 * (x3 - x1), 2 * (y3 - y1)
-            );
+    );
     Vector2dd B(
             y2 * y2 + x2 * x2 - y1 * y1 - x1 * x1,
             y3 * y3 + x3 * x3 - y1 * y1 - x1 * x1
-            );
+    );
     return Matrix22::solve(A, B);
 }
