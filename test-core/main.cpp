@@ -35,21 +35,21 @@ static bool checkFileExist(const char* dirName, const string& filePath)
 }
 
 // Check existance for the "data/pair/image0001_c0.pgm"
-TEST(EnvTest, CheckCurrentDirTest)
-{
-    string filePath = string("data")
-        + PATH_SEPARATOR + "pair"
-        + PATH_SEPARATOR + "image0001_c0.pgm";
-
-    CORE_ASSERT_TRUE(checkFileExist(string("."), filePath), "Missed expected repo DB at the current folder");
-}
-
-TEST(VectorTest, MulAllElements)
-{
-    const int LENGTH = 8;
-    FixedArray<int> arr(LENGTH);
-    ASSERT_EQ(arr.size(), LENGTH);
-}
+//TEST(EnvTest, CheckCurrentDirTest)
+//{
+//    string filePath = string("data")
+//        + PATH_SEPARATOR + "pair"
+//        + PATH_SEPARATOR + "image0001_c0.pgm";
+//
+//    CORE_ASSERT_TRUE(checkFileExist(string("."), filePath), "Missed expected repo DB at the current folder");
+//}
+//
+//TEST(VectorTest, MulAllElements)
+//{
+//    const int LENGTH = 8;
+//    FixedArray<int> arr(LENGTH);
+//    ASSERT_EQ(arr.size(), LENGTH);
+//}
 
 int main(int argc, char **argv)
 {

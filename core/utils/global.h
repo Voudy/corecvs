@@ -101,7 +101,6 @@ struct AssertException : public std::runtime_error
     do {                                                        \
         printf("Assert at %s:%d - %s\n", __FILE__, __LINE__, X);\
         fflush(stdout);                                         \
-        printStackTrace();                                      \
         RAISE_ASSERT(X);                                        \
     } while (0)
 
@@ -111,7 +110,6 @@ struct AssertException : public std::runtime_error
         printf X;                                               \
         printf("\n");                                           \
         fflush(stdout);                                         \
-        printStackTrace();                                      \
         RAISE_ASSERT(#X);                                       \
     } while (0)
 
